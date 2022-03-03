@@ -6,9 +6,8 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-sql-driver/mysql v1.6.0
 	middleware v1.0.0
-	routes v1.0.0
 	models v1.0.0
-	repositories v1.0.0
+	routes v1.0.0
 )
 
 require (
@@ -16,6 +15,7 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
@@ -28,12 +28,13 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	
+	repositories v1.0.0 // indirect
+
 )
 
 replace (
 	middleware v1.0.0 => ./middleware
 	models v1.0.0 => ./models
-	routes v1.0.0 => ./routes
 	repositories v1.0.0 => ./repositories
+	routes v1.0.0 => ./routes
 )
