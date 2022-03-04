@@ -32,6 +32,7 @@ func getAlbums(c *gin.Context) {
 	albums, err := albumRepo.GetAlbums()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "could not retrieve albums"})
+		return
 	}
 
 	c.IndentedJSON(http.StatusOK, albums)
@@ -60,6 +61,7 @@ func postAlbum(c *gin.Context) {
 	albumID, err := albumRepo.AddAlbum(newAlbum)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
 	}
 
 	newAlbum.ID = albumID
