@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"models"
 	"net/http"
 	"os"
 
@@ -39,8 +40,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				c.IndentedJSON(http.StatusForbidden, gin.H{"message": "Need to refresh the auth token here"})
 				c.Abort() // TODO: When token refresh is implemented, don't abort and dont return
 			} else {
-				errorMsg := getErrorMessage(err)
-				c.IndentedJSON(http.StatusForbidden, gin.H{"message": errorMsg})
+				c.IndentedJSON(http.StatusForbidden, models.ErrResponseForHttpStatus(http.StatusForbidden))
 				c.Abort()
 			}
 
@@ -67,14 +67,4 @@ func getAuthCookiesFromContext(c *gin.Context) (string, string, error) {
 	}
 
 	return authTokenCookie.Value, refreshTokenCookie.Value, nil
-}
-
-func getErrorMessage(err error) string {
-	if validationError, _ := err.(*jwt.ValidationError); validationError.Errors == jwt.ValidationErrorExpired {
-		return "auth token expired"
-	}
-
-	// TODO: When implementing roles, provide error message here
-
-	return "invalid auth token"
 }
