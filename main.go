@@ -37,7 +37,7 @@ func main() {
 
 	/* Private Routes */
 	privv1 := router.Group("/v1")
-	router.Use(middleware.TokenAuthMiddleware())
+	privv1.Use(middleware.TokenAuthMiddleware())
 	routes.AddAlbumRoutes(privv1)
 
 	router.Run(":8080")
