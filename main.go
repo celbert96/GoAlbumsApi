@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	//ititialize db
+	//initialize db
 	cfg := mysql.Config{
 		User:   os.Getenv("MYSQLTEST_DB_USER"),
 		Passwd: os.Getenv("MYSQLTEST_DB_PASS"),
@@ -30,10 +30,15 @@ func main() {
 
 	router := gin.Default()
 	router.Use(middleware.EnvMiddleware(*env))
-	router.Use(middleware.TokenAuthMiddleware())
 
-	v1 := router.Group("/v1")
-	routes.AddAlbumRoutes(v1)
+	/* Public Routes */
+	pubv1 := router.Group("/v1")
+	routes.AddUserRoutes(pubv1)
+
+	/* Private Routes */
+	privv1 := router.Group("/v1")
+	privv1.Use(middleware.TokenAuthMiddleware())
+	routes.AddAlbumRoutes(privv1)
 
 	router.Run(":8080")
 }
