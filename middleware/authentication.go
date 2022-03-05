@@ -5,6 +5,7 @@ import (
 	"models"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -12,7 +13,7 @@ import (
 
 func TokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authToken, refreshToken, err := getAuthCookiesFromContext(c)
+		authTokenStr, refreshTokenStr, err := getAuthCookiesFromContext(c)
 		if err != nil {
 			c.IndentedJSON(http.StatusForbidden, gin.H{"message": "Could not parse auth token(s)"})
 			c.Abort()
@@ -20,31 +21,39 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 
 		/* Validate auth token */
-		_, authTokenParseErr := jwt.ParseWithClaims(authToken, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		authTokenClaims := jwt.StandardClaims{}
+		_, authTokenParseErr := jwt.ParseWithClaims(authTokenStr, &authTokenClaims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("DND_JWT_PRIVATE_KEY")), nil
 		})
 
 		/* Validate session token */
-		_, refreshTokenParseErr := jwt.ParseWithClaims(refreshToken, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		_, refreshTokenParseErr := jwt.ParseWithClaims(refreshTokenStr, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("DND_JWT_PRIVATE_KEY")), nil
 		})
 
-		sessionTokenIsValid := (refreshTokenParseErr == nil)
+		refreshTokenIsValid := (refreshTokenParseErr == nil)
 
 		if authTokenParseErr != nil {
 			fmt.Println(authTokenParseErr.Error())
 			validationError, _ := authTokenParseErr.(*jwt.ValidationError)
 
 			/* If the session token is valid, then refresh the auth token and allow the request to continue */
-			if validationError.Errors == jwt.ValidationErrorExpired && sessionTokenIsValid {
-				c.IndentedJSON(http.StatusForbidden, gin.H{"message": "Need to refresh the auth token here"})
-				c.Abort() // TODO: When token refresh is implemented, don't abort and dont return
+			if validationError.Errors == jwt.ValidationErrorExpired && refreshTokenIsValid {
+				newExpiresAt := time.Now().Add(time.Hour * 2)
+				newAuthToken, err := models.MintToken(authTokenClaims.Subject, newExpiresAt)
+				if err != nil {
+					c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
+					c.Abort()
+					return
+				} else {
+					fmt.Printf("middleware > authentication.go > refreshed auth token for user %s\n", authTokenClaims.Subject)
+					c.SetCookie("authtoken", newAuthToken, int(newExpiresAt.Unix()), "/", "", false, true)
+				}
 			} else {
 				c.IndentedJSON(http.StatusForbidden, models.ErrResponseForHttpStatus(http.StatusForbidden))
 				c.Abort()
+				return
 			}
-
-			return
 		}
 
 		c.Next()
