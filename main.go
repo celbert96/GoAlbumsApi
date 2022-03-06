@@ -33,7 +33,7 @@ func main() {
 
 	/* Public Routes */
 	pubv1 := router.Group("/v1")
-	routes.AddUserRoutes(pubv1)
+	routes.AddAuthRoutes(pubv1)
 
 	/* Private Routes */
 	privv1 := router.Group("/v1")

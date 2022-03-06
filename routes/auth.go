@@ -14,10 +14,10 @@ type authresponse struct {
 	RefreshToken models.ClientReadableToken `json:"refresh_token"`
 }
 
-func AddUserRoutes(rg *gin.RouterGroup) {
-	usersGroup := rg.Group("/users")
+func AddAuthRoutes(rg *gin.RouterGroup) {
+	authGroup := rg.Group("/auth")
 
-	usersGroup.GET("/login", login)
+	authGroup.GET("/login", login)
 }
 
 func login(c *gin.Context) {
