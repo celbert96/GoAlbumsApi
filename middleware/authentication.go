@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"models"
+	"gin-learning/models"
 	"net/http"
 	"os"
 	"time"

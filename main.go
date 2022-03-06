@@ -2,10 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"middleware"
-	"models"
+	"gin-learning/middleware"
+	"gin-learning/models"
+	"gin-learning/routes"
 	"os"
-	"routes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"

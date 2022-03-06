@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"models"
+	"gin-learning/models"
 )
 
 type AlbumRepository struct {

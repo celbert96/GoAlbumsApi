@@ -2,7 +2,7 @@ package routes
 
 import (
 	"fmt"
-	"models"
+	"gin-learning/models"
 	"net/http"
 	"time"
 
