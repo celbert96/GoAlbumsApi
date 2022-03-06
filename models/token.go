@@ -12,12 +12,12 @@ type ClientReadableToken struct {
 	Roles     []string `json:"roles"`
 }
 type TokenClaims struct {
-	StandardClaims *jwt.RegisteredClaims
+	jwt.RegisteredClaims
 }
 
 func MintToken(userid string, expires time.Time) (string, error) {
 	claims := TokenClaims{
-		StandardClaims: &jwt.RegisteredClaims{
+		jwt.RegisteredClaims{
 			Issuer:    "gin-api",
 			Subject:   userid,
 			ExpiresAt: jwt.NewNumericDate(expires),
@@ -26,10 +26,10 @@ func MintToken(userid string, expires time.Time) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss": claims.StandardClaims.Issuer,
-		"sub": claims.StandardClaims.Subject,
-		"exp": claims.StandardClaims.ExpiresAt,
-		"iat": claims.StandardClaims.IssuedAt,
+		"iss": claims.Issuer,
+		"sub": claims.Subject,
+		"exp": claims.ExpiresAt,
+		"iat": claims.IssuedAt,
 	})
 
 	return token.SignedString([]byte(os.Getenv("DND_JWT_PRIVATE_KEY")))
