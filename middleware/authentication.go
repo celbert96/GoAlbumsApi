@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"gin-learning/models"
+	"gin-learning/utils"
 	"net/http"
 	"os"
 	"time"
@@ -13,7 +14,7 @@ import (
 
 func TokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authTokenStr, refreshTokenStr, err := getAuthCookiesFromContext(c)
+		authTokenStr, refreshTokenStr, err := utils.GetAuthCookiesFromContext(c)
 		if err != nil {
 			c.IndentedJSON(http.StatusForbidden, gin.H{"message": "Could not parse auth token(s)"})
 			c.Abort()
@@ -58,22 +59,4 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-func getAuthCookiesFromContext(c *gin.Context) (string, string, error) {
-	/* Get auth token */
-	authTokenCookie, err := c.Request.Cookie("authtoken")
-	if err != nil {
-		fmt.Println(err.Error())
-		return "", "", err
-	}
-
-	/* Get session token */
-	refreshTokenCookie, err := c.Request.Cookie("refreshtoken")
-	if err != nil {
-		fmt.Println(err.Error())
-		return "", "", err
-	}
-
-	return authTokenCookie.Value, refreshTokenCookie.Value, nil
 }
