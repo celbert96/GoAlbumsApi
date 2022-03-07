@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"models"
+	"gin-learning/models"
 
 	"github.com/gin-gonic/gin"
 )

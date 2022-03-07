@@ -3,11 +3,11 @@ package routes
 import (
 	"database/sql"
 	"fmt"
-	"models"
+	"gin-learning/models"
 	"net/http"
 	"strconv"
 
-	"repositories"
+	"gin-learning/repositories"
 
 	"github.com/gin-gonic/gin"
 )
