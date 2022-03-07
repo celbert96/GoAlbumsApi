@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gin-learning/controllers"
 	"gin-learning/models"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -25,7 +26,7 @@ func getAlbums(c *gin.Context) {
 	env, ok := c.MustGet("env").(models.Env)
 
 	if !ok {
-		fmt.Println("routes > albums > getAlbums > env not accessible")
+		log.Println("routes > albums > getAlbums > env not accessible")
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
 		return
 	}
@@ -35,7 +36,7 @@ func getAlbums(c *gin.Context) {
 
 	albums, err := albumController.GetAlbums()
 	if err != nil {
-		fmt.Printf("routes > albums > getAlbums > failed to get albums: error: \n%s\n", err.Error())
+		log.Printf("routes > albums > getAlbums > failed to get albums: error: \n%s\n", err.Error())
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
 		return
 	}
@@ -58,7 +59,7 @@ func postAlbum(c *gin.Context) {
 
 	env, ok := c.MustGet("env").(models.Env)
 	if !ok {
-		fmt.Println("routes > albums > postAlbum > env not accessible")
+		log.Println("routes > albums > postAlbum > env not accessible")
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
 		return
 	}
@@ -80,7 +81,7 @@ func getAlbumByID(c *gin.Context) {
 	env, ok := c.MustGet("env").(models.Env)
 
 	if !ok {
-		fmt.Println("routes > albums > getAlbumByID > env not accessible")
+		log.Println("routes > albums > getAlbumByID > env not accessible")
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: ""})
 		return
 	}
@@ -101,7 +102,7 @@ func getAlbumByID(c *gin.Context) {
 			errMsg := fmt.Sprintf("no album found with id %d", id)
 			c.IndentedJSON(http.StatusNotFound, models.ErrResponse{ErrorMessage: errMsg})
 		} else {
-			fmt.Printf("routes > albums > getAlbumByID > failed to get album with id %d: error: \n%s\n", id, err.Error())
+			log.Printf("routes > albums > getAlbumByID > failed to get album with id %d: error: \n%s\n", id, err.Error())
 			c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
 		}
 		return
