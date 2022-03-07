@@ -5,6 +5,12 @@ import (
 	"gin-learning/models"
 )
 
+type IAlbumRepository interface {
+	GetAlbums() ([]models.Album, error)
+	GetAlbumByID(id int) (models.Album, error)
+	AddAlbum(albums models.Album) (int, error)
+}
+
 type AlbumRepository struct {
 	DBConn sql.DB
 }

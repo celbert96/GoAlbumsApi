@@ -2,9 +2,9 @@ package routes
 
 import (
 	"errors"
-	"fmt"
 	"gin-learning/models"
 	"gin-learning/utils"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -35,8 +35,8 @@ func getAuthToken(c *gin.Context) {
 	authTokenExpiration := time.Now().Add(time.Hour * 2)
 	authTokenString, err := models.MintToken("user01", authTokenExpiration)
 	if err != nil {
-		fmt.Printf("routes > user.go > getAuthToken > failed to mint auth token")
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		log.Printf("routes > user.go > getAuthToken > failed to mint auth token")
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: "Could not mint token"})
 		return
 	}
 
@@ -58,15 +58,15 @@ func login(c *gin.Context) {
 
 	authTokenString, err := models.MintToken("user01", authTokenExpiration)
 	if err != nil {
-		fmt.Printf("routes > user.go > login > failed to mint auth token")
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		log.Println("routes > user.go > login > failed to mint auth token")
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: "Could not mint token"})
 		return
 	}
 
 	refreshTokenString, err := models.MintToken("user01", refreshTokenExpiration)
 	if err != nil {
-		fmt.Printf("routes > user.go > login > failed to mint refresh token")
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		log.Println("routes > user.go > login > failed to mint refresh token")
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: "Could not mint token"})
 		return
 	}
 
@@ -93,7 +93,7 @@ func login(c *gin.Context) {
 func refreshAuthToken(c *gin.Context) {
 	authTokenStr, refreshTokenStr, err := utils.GetAuthCookiesFromContext(c)
 	if err != nil {
-		fmt.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
+		log.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
 		c.IndentedJSON(http.StatusBadRequest, models.ErrResponseForHttpStatus(http.StatusBadRequest))
 		return
 	}
@@ -105,7 +105,7 @@ func refreshAuthToken(c *gin.Context) {
 
 	// if the error is that the auth token is expired, that is fine
 	if err != nil && !errors.Is(err, jwt.ErrTokenExpired) {
-		fmt.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
+		log.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
 		c.IndentedJSON(http.StatusBadRequest, models.ErrResponseForHttpStatus(http.StatusBadRequest))
 		return
 	}
@@ -115,7 +115,7 @@ func refreshAuthToken(c *gin.Context) {
 		return []byte(os.Getenv("DND_JWT_PRIVATE_KEY")), nil
 	})
 	if err != nil {
-		fmt.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
+		log.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
 		c.IndentedJSON(http.StatusBadRequest, models.ErrResponseForHttpStatus(http.StatusBadRequest))
 		return
 	}
@@ -123,7 +123,7 @@ func refreshAuthToken(c *gin.Context) {
 	newExpiresAt := time.Now().Add(time.Hour * 2)
 	newAuthToken, err := models.MintToken(authTokenClaims.Subject, newExpiresAt)
 	if err != nil {
-		fmt.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
+		log.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
 		return
 	}
