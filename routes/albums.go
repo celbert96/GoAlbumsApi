@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"fmt"
+	"gin-learning/controllers"
 	"gin-learning/models"
 	"net/http"
 	"strconv"
@@ -30,7 +31,9 @@ func getAlbums(c *gin.Context) {
 	}
 
 	albumRepo := repositories.AlbumRepository{DBConn: *env.DB}
-	albums, err := albumRepo.GetAlbums()
+	albumController := controllers.AlbumController{AlbumRepository: albumRepo}
+
+	albums, err := albumController.GetAlbums()
 	if err != nil {
 		fmt.Printf("routes > albums > getAlbums > failed to get albums: error: \n%s\n", err.Error())
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
@@ -61,7 +64,9 @@ func postAlbum(c *gin.Context) {
 	}
 
 	albumRepo := repositories.AlbumRepository{DBConn: *env.DB}
-	albumID, err := albumRepo.AddAlbum(newAlbum)
+	albumController := controllers.AlbumController{AlbumRepository: albumRepo}
+
+	albumID, err := albumController.AddAlbum(newAlbum)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
 		return
@@ -88,8 +93,9 @@ func getAlbumByID(c *gin.Context) {
 	}
 
 	albumRepo := repositories.AlbumRepository{DBConn: *env.DB}
+	albumController := controllers.AlbumController{AlbumRepository: albumRepo}
 
-	album, err := albumRepo.GetAlbumByID(id)
+	album, err := albumController.GetAlbumByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			errMsg := fmt.Sprintf("no album found with id %d", id)
