@@ -36,7 +36,7 @@ func getAuthToken(c *gin.Context) {
 	authTokenString, err := models.MintToken("user01", authTokenExpiration)
 	if err != nil {
 		fmt.Printf("routes > user.go > getAuthToken > failed to mint auth token")
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: "Could not mint token"})
 		return
 	}
 
@@ -59,14 +59,14 @@ func login(c *gin.Context) {
 	authTokenString, err := models.MintToken("user01", authTokenExpiration)
 	if err != nil {
 		fmt.Printf("routes > user.go > login > failed to mint auth token")
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: "Could not mint token"})
 		return
 	}
 
 	refreshTokenString, err := models.MintToken("user01", refreshTokenExpiration)
 	if err != nil {
 		fmt.Printf("routes > user.go > login > failed to mint refresh token")
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponse{ErrorMessage: "Could not mint token"})
 		return
 	}
 
