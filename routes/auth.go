@@ -13,9 +13,14 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type authresponse struct {
-	AuthToken    models.ClientReadableToken `json:"auth_token"`
-	RefreshToken models.ClientReadableToken `json:"refresh_token"`
+type loginresponse struct {
+	AuthTokenDetails    models.ClientReadableToken `json:"auth_token_details"`
+	RefreshTokenDetails models.ClientReadableToken `json:"refresh_token_detials"`
+}
+
+type gettokenresponse struct {
+	AuthToken        string                     `json:"auth_token"`
+	AuthTokenDetails models.ClientReadableToken `json:"auth_token_details"`
 }
 
 func AddAuthRoutes(rg *gin.RouterGroup) {
@@ -23,6 +28,28 @@ func AddAuthRoutes(rg *gin.RouterGroup) {
 
 	authGroup.GET("/login", login)
 	authGroup.GET("/refreshtoken", refreshAuthToken)
+	authGroup.POST("/getauthtoken", getAuthToken)
+}
+
+func getAuthToken(c *gin.Context) {
+	authTokenExpiration := time.Now().Add(time.Hour * 2)
+	authTokenString, err := models.MintToken("user01", authTokenExpiration)
+	if err != nil {
+		fmt.Printf("routes > user.go > getAuthToken > failed to mint auth token")
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not mint token"})
+		return
+	}
+
+	authTokenDetails := models.ClientReadableToken{
+		ExpiresAt: authTokenExpiration.Unix(),
+		Roles:     []string{},
+	}
+
+	c.IndentedJSON(http.StatusOK, gettokenresponse{
+		AuthToken:        authTokenString,
+		AuthTokenDetails: authTokenDetails,
+	})
+
 }
 
 func login(c *gin.Context) {
@@ -53,7 +80,7 @@ func login(c *gin.Context) {
 		Roles:     []string{},
 	}
 
-	response := authresponse{
+	response := loginresponse{
 		clientReadableAuthToken,
 		clientReadableSessionToken,
 	}
@@ -77,7 +104,8 @@ func refreshAuthToken(c *gin.Context) {
 	})
 
 	// if the error is that the auth token is expired, that is fine
-	if !errors.Is(err, jwt.ErrTokenExpired) {
+	if err != nil && !errors.Is(err, jwt.ErrTokenExpired) {
+		fmt.Printf("routes > albums.go > refreshAuthToken > %s\n", err.Error())
 		c.IndentedJSON(http.StatusBadRequest, models.ErrResponseForHttpStatus(http.StatusBadRequest))
 		return
 	}
@@ -111,8 +139,8 @@ func refreshAuthToken(c *gin.Context) {
 	}
 
 	c.SetCookie("authtoken", newAuthToken, int(newExpiresAt.Unix()), "/", "", false, true)
-	c.IndentedJSON(http.StatusOK, authresponse{
-		AuthToken:    clientReadableAuthToken,
-		RefreshToken: clientReadableRefreshToken,
+	c.IndentedJSON(http.StatusOK, loginresponse{
+		AuthTokenDetails:    clientReadableAuthToken,
+		RefreshTokenDetails: clientReadableRefreshToken,
 	})
 }

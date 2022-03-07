@@ -35,3 +35,10 @@ func MintToken(userid string, expires time.Time) (string, error) {
 	return token.SignedString([]byte(os.Getenv("DND_JWT_PRIVATE_KEY")))
 
 }
+
+func ValidateToken(tokenStr string) (*jwt.Token, error) {
+	claims := TokenClaims{}
+	return jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("DND_JWT_PRIVATE_KEY")), nil
+	})
+}

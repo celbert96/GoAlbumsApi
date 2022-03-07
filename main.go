@@ -35,10 +35,14 @@ func main() {
 	pubv1 := router.Group("/v1")
 	routes.AddAuthRoutes(pubv1)
 
-	/* Private Routes */
-	privv1 := router.Group("/v1")
-	privv1.Use(middleware.TokenAuthMiddleware())
-	routes.AddAlbumRoutes(privv1)
+	/* Protected routes which support cookie auth scheme */
+	webprotectedv1 := router.Group("/web/v1")
+	webprotectedv1.Use(middleware.CookieTokenAuth())
+	routes.AddAlbumRoutes(webprotectedv1)
 
+	/* Protected routes which support Bearer token auth scheme */
+	apiprotectedv1 := router.Group("api/v1")
+	apiprotectedv1.Use(middleware.BearerTokenAuth())
+	routes.AddAlbumRoutes(apiprotectedv1)
 	router.Run(":8080")
 }
