@@ -2,7 +2,9 @@ package routes
 
 import (
 	"errors"
+	"gin-learning/controllers"
 	"gin-learning/models"
+	"gin-learning/repositories"
 	"gin-learning/utils"
 	"log"
 	"net/http"
@@ -29,6 +31,7 @@ func AddAuthRoutes(rg *gin.RouterGroup) {
 	authGroup.GET("/login", login)
 	authGroup.GET("/refreshtoken", refreshAuthToken)
 	authGroup.POST("/getauthtoken", getAuthToken)
+	authGroup.POST("/register", register)
 }
 
 func getAuthToken(c *gin.Context) {
@@ -88,6 +91,34 @@ func login(c *gin.Context) {
 	c.SetCookie("authtoken", authTokenString, int(authTokenExpiration.Unix()), "/", "", false, true)
 	c.SetCookie("refreshtoken", refreshTokenString, int(refreshTokenExpiration.Unix()), "/", "", false, true)
 	c.IndentedJSON(http.StatusOK, response)
+}
+
+func register(c *gin.Context) {
+	var user models.User
+
+	if err := c.BindJSON(&user); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, models.ErrResponseForHttpStatus(http.StatusBadRequest))
+		return
+	}
+
+	env, ok := c.MustGet("env").(models.Env)
+	if !ok {
+		log.Println("routes > albums > postAlbum > env not accessible")
+		c.IndentedJSON(http.StatusInternalServerError, models.ErrResponseForHttpStatus(http.StatusInternalServerError))
+		return
+	}
+
+	repo := repositories.UserRepository{DBConn: *env.DB}
+	controller := controllers.UserController{UserRepository: repo}
+
+	id, err := controller.AddUser(user)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, models.ErrResponse{ErrorMessage: err.Error()})
+		return
+	}
+
+	user.ID = id
+	c.IndentedJSON(http.StatusCreated, user)
 }
 
 func refreshAuthToken(c *gin.Context) {
