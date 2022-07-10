@@ -17,7 +17,7 @@ func main() {
 		User:   os.Getenv("MYSQLTEST_DB_USER"),
 		Passwd: os.Getenv("MYSQLTEST_DB_PASS"),
 		Net:    "tcp",
-		Addr:   "10.0.0.32:3306",
+		Addr:   "192.168.1.17:3306",
 		DBName: "mysqltest",
 	}
 
