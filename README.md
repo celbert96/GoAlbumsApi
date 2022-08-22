@@ -1,4 +1,4 @@
-# gin-learning {WIP}
+# GoAuthServer
 
 ## About
 This is a sample project that I have created to learn more about the Go programming language and the Gin web framework.
